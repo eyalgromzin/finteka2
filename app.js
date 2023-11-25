@@ -8,6 +8,10 @@ const {
     getTable,
 } = require('./dynamo');
 
+const {
+    getTableV3
+} = require('./dynamov3')
+
 app.use(express.json());
 
 app.get('/getTable', async (req, res) => {
@@ -19,6 +23,20 @@ app.get('/getTable', async (req, res) => {
         res.status(500).json({ err: 'Something went wrong' });
     }
 });
+
+app.get('/getTableV3', async (req, res) => {
+    try {
+        const id = req.query.id;
+        console.log('id: ', id)
+        const table = await getTableV3();
+        res.json(table);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ err: 'Something went wrong' });
+    }
+});
+
+app.post()
 
 app.get('/characters', async (req, res) => {
     try {
