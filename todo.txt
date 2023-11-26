@@ -1,0 +1,3 @@
+- clean code
+- 
+- move code to AWS methods 
