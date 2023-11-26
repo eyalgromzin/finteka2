@@ -1,3 +1,3 @@
 - clean code
-- 
-- move code to AWS methods 
+- go over all methods , check them and add to aws 
+- move code to AWS methods

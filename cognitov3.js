@@ -1,4 +1,8 @@
 const AWS = require("@aws-sdk/client-cognito-identity-provider");
+const {
+    CognitoIdentityProviderClient,
+    SignUpCommand,
+} = require("@aws-sdk/client-cognito-identity-provider");
 
 const loginUser = async (username, password) => {
     const client = new AWS.CognitoIdentityProvider({
@@ -8,11 +12,11 @@ const loginUser = async (username, password) => {
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         },
     });
-    
+
     return new Promise((resolve, reject) => {
         client.initiateAuth(
             {
-                ClientId: '1k2pmc8qs78tsnfcrs5pak57p7', //process.env.AWS_CLIENT_ID,
+                ClientId: "1k2pmc8qs78tsnfcrs5pak57p7", //process.env.AWS_CLIENT_ID,
                 AuthFlow: "USER_PASSWORD_AUTH",
                 AuthParameters: {
                     USERNAME: username,
@@ -25,16 +29,39 @@ const loginUser = async (username, password) => {
                         status: 400,
                         message: `login error: ${err}`,
                     });
-                    reject(err)
+                    reject(err);
                 }
                 console.log("login success");
-                console.log("data: ", data);            
-                resolve(data)
+                console.log("data: ", data);
+                resolve(data);
             }
         );
     });
-}
+};
+
+const signUpUser = async (username, password, email) => {
+    const client = new CognitoIdentityProviderClient({ region: "us-east-1" }); // Replace "REGION" with your AWS region
+    const signUpParams = {
+        ClientId: "1k2pmc8qs78tsnfcrs5pak57p7", // Replace with your user pool client ID
+        Username: username, // Replace with the desired username
+        Password: password, 
+        UserAttributes: [
+            {
+                Name: "email", // Required attribute
+                Value: email,
+            },
+        ],
+    };
+
+    try {
+        const data = await client.send(new SignUpCommand(signUpParams));
+        return data
+    } catch (error) {
+        console.error("Error signing up user:", error);
+    }
+};
 
 module.exports = {
-    loginUser
+    loginUser,
+    signUpUser,
 };

@@ -3,12 +3,26 @@ var bodyParser = require("body-parser");
 const app = express();
 
 const { getTableRowV3, createUserV3, updateUserV3 } = require("./dynamov3");
-const { loginUser } = require("./cognitov3");
+const { loginUser, signUpUser } = require("./cognitov3");
 
 app.use(express.json());
 app.use(bodyParser.json({ type: "application/*+json" }));
 
 const phoneRegex = /^05\d([-]{0,1})\d{7}$/;
+
+app.post("/user", async (req, res) => {
+    try{
+        const { username, password, email } = req.body
+        const result = await signUpUser(username, password, email)
+        res.json(result);
+    } catch (err) {
+        return res.json({
+            status: 200,
+            message: "user created",
+            result: result,
+        });
+    }
+})
 
 //works
 app.get("/getTableV3", async (req, res) => {
