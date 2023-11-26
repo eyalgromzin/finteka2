@@ -57,7 +57,7 @@ const signUpUser = async (username, password, email) => {
         const data = await client.send(new SignUpCommand(signUpParams));
         return data
     } catch (error) {
-        console.error("Error signing up user:", error);
+        throw `${error}`
     }
 };
 

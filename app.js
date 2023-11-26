@@ -12,14 +12,20 @@ const phoneRegex = /^05\d([-]{0,1})\d{7}$/;
 
 app.post("/user", async (req, res) => {
     try{
-        const { username, password, email } = req.body
-        const result = await signUpUser(username, password, email)
-        res.json(result);
-    } catch (err) {
+        const { username, password, email, firstName, lastName, id } = req.body
+        const createCognitoUserResult = await signUpUser(username, password, email)
+        
+        const createDynamoUserResult = await createUserV3(firstName, lastName, id, username, password)
+
         return res.json({
             status: 200,
             message: "user created",
             result: result,
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: "Something went wrong",
+            error: err,
         });
     }
 })

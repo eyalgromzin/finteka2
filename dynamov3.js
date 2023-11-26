@@ -4,10 +4,16 @@ const {
     PutItemCommand,
     UpdateItemCommand,
 } = require('@aws-sdk/client-dynamodb');
-
+// const AWS = require('aws-sdk');
 
 const ddbClient = new DynamoDBClient({ region: 'us-east-1' })
 const TABLE_NAME = 'User3';
+
+// AWS.config.update({
+//     region: 'us-east-1',  
+//     // accessKeyId: 'AKIA22YVKXCC5US65CFZ',
+//     // secretAccessKey: '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'
+// });
 
 function isValidIsraeliID(id) {
     var id = String(id).trim();
@@ -89,14 +95,14 @@ const updateUserV3 = async (id, fieldName, fieldValue) => {
     ];
 
     if (!fieldNames.includes(fieldName)) {
-        res.status(400).json({ err: "field name not in fields" });
+        return { err: "field name not in fields" }
     }
 
     if (!checkField(fieldName, fieldValue)) {
-        return res.json({
+        return {
             status: 400,
             message: "invalue field / field value ",
-        });
+        }
     }
 
     const commandParams = {
