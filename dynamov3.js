@@ -4,16 +4,18 @@ const {
     PutItemCommand,
     UpdateItemCommand,
 } = require('@aws-sdk/client-dynamodb');
-// const AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
 
-const ddbClient = new DynamoDBClient({ region: 'us-east-1' })
+const credentials = new AWS.Credentials({
+    accessKeyId: 'AKIA22YVKXCC7KOQFIHQ',
+    secretAccessKey: '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',
+  });
+
+const ddbClient = new DynamoDBClient({ 
+    region: 'us-east-1',
+    credentials: credentials,
+ })
 const TABLE_NAME = 'User3';
-
-// AWS.config.update({
-//     region: 'us-east-1',  
-//     // accessKeyId: 'AKIA22YVKXCC5US65CFZ',
-//     // secretAccessKey: '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'
-// });
 
 function isValidIsraeliID(id) {
     var id = String(id).trim();
@@ -44,6 +46,7 @@ const checkField = (fieldName, value) => {
             return false;
         }
     } else if (fieldName == "phoneNumber") {
+        const phoneRegex = /^05\d([-]{0,1})\d{7}$/;
         return phoneRegex.test(value);
     } else if (fieldName == "password") {
         return value.length > 6;
@@ -126,4 +129,5 @@ module.exports = {
     getTableRowV3,
     createUserV3,
     updateUserV3,
+    checkField,
 };

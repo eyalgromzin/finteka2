@@ -2,13 +2,13 @@ const express = require("express");
 var bodyParser = require("body-parser");
 const app = express();
 
-const { getTableRowV3, createUserV3, updateUserV3 } = require("./dynamov3");
+const { getTableRowV3, createUserV3, updateUserV3, checkField } = require("./dynamov3");
 const { loginUser, signUpUser } = require("./cognitov3");
 
 app.use(express.json());
 app.use(bodyParser.json({ type: "application/*+json" }));
 
-const phoneRegex = /^05\d([-]{0,1})\d{7}$/;
+
 
 app.post("/user", async (req, res) => {
     try{
@@ -31,7 +31,7 @@ app.post("/user", async (req, res) => {
 })
 
 //works
-app.get("/getTableV3", async (req, res) => {
+app.get("/getTableRowV3", async (req, res) => {
     try {
         const id = req.query.id;
         console.log("id: ", id);
@@ -85,7 +85,7 @@ app.put("/updateUserV3", async (req, res) => {
 app.post("/createUserV3", async (req, res) => {
     try {
         const firstName = req.body.firstName;
-        if (firstName.length < 1 || firstName.length > 20) {
+        if (!checkField('firstName', firstName)) {
             return res.json({
                 status: 400,
                 message: "invalid first name",
@@ -93,7 +93,7 @@ app.post("/createUserV3", async (req, res) => {
         }
 
         const lastName = req.body.lastName;
-        if (lastName.length < 1 || lastName.length > 20) {
+        if (!checkField('lastName', lastName)) {
             return res.json({
                 status: 400,
                 message: "invalid last name",
@@ -101,7 +101,7 @@ app.post("/createUserV3", async (req, res) => {
         }
 
         const id = req.body.id;
-        if (!isValidIsraeliID(id)) {
+        if (!checkField('id', id)) {
             return res.json({
                 status: 400,
                 message: "invalid israeli id",
@@ -109,7 +109,7 @@ app.post("/createUserV3", async (req, res) => {
         }
 
         const phoneNumber = req.body.phoneNumber;
-        if (!phoneRegex.test(phoneNumber)) {
+        if (!checkField('phoneNumber', phoneNumber)) {
             return res.json({
                 status: 400,
                 message: "invalid mobile number",
@@ -117,7 +117,7 @@ app.post("/createUserV3", async (req, res) => {
         }
 
         const password = req.body.password;
-        if (password.length < 6) {
+        if (!checkField('password', password)) {
             return res.json({
                 status: 400,
                 message: "password must be at least 6 chars ",

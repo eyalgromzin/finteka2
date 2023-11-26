@@ -1,3 +1,6 @@
 - clean code
 - go over all methods , check them and add to aws 
 - move code to AWS methods
+
+
+aws configure
