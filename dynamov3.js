@@ -69,7 +69,7 @@ const getTableRowV3 = async (id) => {
     return tableRow;
 }
 
-const createUserV3 = async (firstName, lastName, id, phoneNumber, password) => {
+const addUserToDBV3 = async (firstName, lastName, id, phoneNumber, password) => {
     const item = {
         "firstName": {"S": firstName},
         "lastName": {"S": lastName},
@@ -87,35 +87,18 @@ const createUserV3 = async (firstName, lastName, id, phoneNumber, password) => {
     return responpse
 }
 
-const updateUserV3 = async (id, fieldName, fieldValue) => {
-    
-    const fieldNames = [
-        "id",
-        "firstName",
-        "lastName",
-        "phoneNumber",
-        "password",
-    ];
-
-    if (!fieldNames.includes(fieldName)) {
-        return { err: "field name not in fields" }
-    }
-
-    if (!checkField(fieldName, fieldValue)) {
-        return {
-            status: 400,
-            message: "invalue field / field value ",
-        }
-    }
-
+const updateUserV3 = async (id, firstName, lastName, phoneNumber, password ) => {
     const commandParams = {
         TableName: TABLE_NAME,
         Key: {
             id: { S: id },
         },
-        UpdateExpression: `SET ${fieldName} = :value`,
+        UpdateExpression: `SET firstName=:value1, lastName=:value2, phoneNumber=:value3, password=:value4`,
         ExpressionAttributeValues: {
-            ":value": { S: fieldValue },
+            ":value1": { S: firstName },
+            ":value2": { S: lastName },
+            ":value3": { S: phoneNumber },
+            ":value4": { S: password },
         },
         ReturnValues: "ALL_NEW",
     };
@@ -127,7 +110,7 @@ const updateUserV3 = async (id, fieldName, fieldValue) => {
 
 module.exports = {
     getTableRowV3,
-    createUserV3,
+    addUserToDBV3,
     updateUserV3,
     checkField,
 };

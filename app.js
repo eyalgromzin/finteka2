@@ -2,25 +2,34 @@ const express = require("express");
 var bodyParser = require("body-parser");
 const app = express();
 
-const { getTableRowV3, createUserV3, updateUserV3, checkField } = require("./dynamov3");
+const { getTableRowV3, addUserToDBV3, updateUserV3, checkField } = require("./dynamov3");
 const { loginUser, signUpUser } = require("./cognitov3");
 
 app.use(express.json());
 app.use(bodyParser.json({ type: "application/*+json" }));
 
 
-
+// 2
 app.post("/user", async (req, res) => {
     try{
         const { username, password, email, firstName, lastName, id } = req.body
+
+        if (!validateAllFields(id, firstName, lastName, phoneNumber, password)){
+            return res.json({
+                status: 400,
+                message: "some of the fields are invalid",
+            });
+        }
+
         const createCognitoUserResult = await signUpUser(username, password, email)
         
-        const createDynamoUserResult = await createUserV3(firstName, lastName, id, username, password)
+        const createDynamoUserResult = await addUserToDBV3(firstName, lastName, id, username, password)
 
         return res.json({
             status: 200,
             message: "user created",
-            result: result,
+            createCognitoUserResult: createCognitoUserResult,
+            createDynamoUserResult: createDynamoUserResult
         });
     } catch (err) {
         res.status(500).json({
@@ -30,10 +39,10 @@ app.post("/user", async (req, res) => {
     }
 })
 
-//works
-app.get("/getTableRowV3", async (req, res) => {
+//5
+app.get("/user/:id", async (req, res) => {
     try {
-        const id = req.query.id;
+        const { id } = req.params;
         console.log("id: ", id);
         const table = await getTableRowV3(id);
         res.json(table);
@@ -43,6 +52,7 @@ app.get("/getTableRowV3", async (req, res) => {
     }
 });
 
+//3
 app.post("/user/login", async (req, res) => {
     try {
         const username = req.body.username;
@@ -64,12 +74,31 @@ app.post("/user/login", async (req, res) => {
     }
 });
 
-//works
+// 4
 app.put("/updateUserV3", async (req, res) => {
     try {
-        const { id, fieldName, fieldValue } = req.body;
+        const { id, firstName, lastName, phoneNumber, password } = req.body;
 
-        const result = await updateUserV3(id, fieldName, fieldValue);
+        if (!validateAllFields(id, firstName, lastName, phoneNumber, password)){
+            return res.json({
+                status: 400,
+                message: "some of the fields are invalid",
+            });
+        }
+
+        const tableRow = await getTableRowV3(id);
+
+        if (tableRow.Item.firstName.S ==  firstName && 
+            tableRow.Item.lastName.S ==  lastName &&
+            tableRow.Item.phoneNumber.S ==  phoneNumber &&
+            tableRow.Item.password.S ==  password){
+                return res.json({
+                    status: 400,
+                    message: "all fields are the same, change at least 1 field",
+                });
+            }
+
+        const result = await updateUserV3(id, firstName, lastName, phoneNumber, password );
 
         res.json(result);
     } catch (err) {
@@ -124,7 +153,7 @@ app.post("/createUserV3", async (req, res) => {
             });
         }
 
-        const result = await createUserV3(
+        const result = await addUserToDBV3(
             firstName,
             lastName,
             id,
@@ -138,40 +167,8 @@ app.post("/createUserV3", async (req, res) => {
     }
 });
 
-app.get("/characters/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        const character = await getCharacterById(id);
 
-        res.json(character);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ err: "Something went wrong" });
-    }
-});
 
-app.put("/characters/:id", async (req, res) => {
-    const character = req.body;
-    const { id } = req.params;
-    character.id = id;
-    try {
-        const newCharacter = await addOrUpdateCharacter(character);
-        res.json(newCharacter);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ err: "Something went wrong" });
-    }
-});
-
-app.delete("/characters/:id", async (req, res) => {
-    const { id } = req.params;
-    try {
-        res.json(await deleteCharacter(id));
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ err: "Something went wrong" });
-    }
-});
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
