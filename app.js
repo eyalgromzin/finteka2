@@ -118,43 +118,13 @@ app.put("/updateUserV3", async (req, res) => {
 //works
 app.post("/createUserV3", async (req, res) => {
     try {
-        const firstName = req.body.firstName;
-        if (!checkField('firstName', firstName)) {
-            return res.json({
-                status: 400,
-                message: "invalid first name",
-            });
-        }
+        const { id, firstName, lastName, phoneNumber, password } = req.body;
 
-        const lastName = req.body.lastName;
-        if (!checkField('lastName', lastName)) {
+        const fieldValidationRes = validateAllFields(id, firstName, lastName, phoneNumber, password)
+        if (fieldValidationRes){
             return res.json({
                 status: 400,
-                message: "invalid last name",
-            });
-        }
-
-        const id = req.body.id;
-        if (!checkField('id', id)) {
-            return res.json({
-                status: 400,
-                message: "invalid israeli id",
-            });
-        }
-
-        const phoneNumber = req.body.phoneNumber;
-        if (!checkField('phoneNumber', phoneNumber)) {
-            return res.json({
-                status: 400,
-                message: "invalid mobile number",
-            });
-        }
-
-        const password = req.body.password;
-        if (!checkField('password', password)) {
-            return res.json({
-                status: 400,
-                message: "password must be at least 6 chars ",
+                message: fieldValidationRes,
             });
         }
 
@@ -165,6 +135,7 @@ app.post("/createUserV3", async (req, res) => {
             phoneNumber,
             password
         );
+        
         res.json(result);
     } catch (err) {
         console.error(err);
