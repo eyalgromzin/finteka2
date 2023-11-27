@@ -17,46 +17,6 @@ const ddbClient = new DynamoDBClient({
  })
 const TABLE_NAME = 'User3';
 
-function isValidIsraeliID(id) {
-    var id = String(id).trim();
-    if (id.length > 9 || id.length < 5 || isNaN(id)) return false;
-
-    // Pad string with zeros up to 9 digits
-    id = id.length < 9 ? ("00000000" + id).slice(-9) : id;
-
-    return (
-        Array.from(id, Number).reduce((counter, digit, i) => {
-            const step = digit * ((i % 2) + 1);
-            return counter + (step > 9 ? step - 9 : step);
-        }) %
-            10 ===
-        0
-    );
-}
-
-const checkField = (fieldName, value) => {
-    if (!value) {
-        return false;
-    }
-
-    if (fieldName == "id") {
-        return isValidIsraeliID(value);
-    } else if (fieldName == "lastName" || fieldName == "firstName") {
-        if (value > 20) {
-            return false;
-        }
-    } else if (fieldName == "phoneNumber") {
-        const phoneRegex = /^05\d([-]{0,1})\d{7}$/;
-        return phoneRegex.test(value);
-    } else if (fieldName == "password") {
-        return value.length > 6;
-    } else {
-        return false;
-    }
-
-    return true;
-};
-
 const getTableRowV3 = async (id) => {
     const params = {
         TableName: TABLE_NAME,
@@ -112,5 +72,4 @@ module.exports = {
     getTableRowV3,
     addUserToDBV3,
     updateUserV3,
-    checkField,
 };

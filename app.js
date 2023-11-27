@@ -2,22 +2,26 @@ const express = require("express");
 var bodyParser = require("body-parser");
 const app = express();
 
-const { getTableRowV3, addUserToDBV3, updateUserV3, checkField } = require("./dynamov3");
+const { getTableRowV3, addUserToDBV3, updateUserV3 } = require("./dynamov3");
 const { loginUser, signUpUser } = require("./cognitov3");
+const { validateAllFields, checkField } = require("./common");
 
 app.use(express.json());
 app.use(bodyParser.json({ type: "application/*+json" }));
 
 
+
+
 // 2
 app.post("/user", async (req, res) => {
     try{
-        const { username, password, email, firstName, lastName, id } = req.body
+        const { username, password, email, firstName, lastName, id, phoneNumber } = req.body
 
-        if (!validateAllFields(id, firstName, lastName, phoneNumber, password)){
+        const fieldValidationRes = validateAllFields(id, firstName, lastName, phoneNumber, password)
+        if (fieldValidationRes){
             return res.json({
                 status: 400,
-                message: "some of the fields are invalid",
+                message: `some of the fields are invalid: ${fieldValidationRes}`,
             });
         }
 
@@ -79,10 +83,11 @@ app.put("/updateUserV3", async (req, res) => {
     try {
         const { id, firstName, lastName, phoneNumber, password } = req.body;
 
-        if (!validateAllFields(id, firstName, lastName, phoneNumber, password)){
+        const fieldValidationRes = validateAllFields(id, firstName, lastName, phoneNumber, password)
+        if (fieldValidationRes){
             return res.json({
                 status: 400,
-                message: "some of the fields are invalid",
+                message: fieldValidationRes,
             });
         }
 
